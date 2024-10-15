@@ -1,0 +1,225 @@
+<!--#fcdd9e-->
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>miniproject</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+
+        <section id="header">
+            <a href="#"><img src="img/logo_new.png" class="logo" alt=""></a>
+            <div>
+                <ul id="navbar">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="shop.html">Shop</a></li>                    
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a class="active" href="cart.html"><i class="fa fa-shopping-bag" aria-hidden="true"></i></a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </div>
+        </section>
+        <section id="page-header" class="about-header">
+            
+            <h2>#let's_talk</h2>
+            
+            <p>LEAVE A MESSAGE.We love to hear from you!</p>
+            
+        </section>
+        <section id="cart" class="section-p1">
+            <table width="100%">
+                <thead id="cartTableHead">
+                    <tr>
+                        <td>Remove</td>
+                        <td>Image</td>
+                        <td>Product</td>
+                        <td>Price</td>
+                        <td>Quantity</td>
+                        <td>Subtotal</td>
+                    </tr>    
+                </thead>
+                <tbody id="cartItems">
+                    <!-- Dynamic content will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+            <p id="emptyCartMessage" style="display: none;">Your cart is empty.</p>
+        </section>
+        
+        <section id="cart-add" class="section-p1">
+            <div id="coupon">
+                <h3>Apply Cuopon</h3>
+                <div>
+                    <input type="text" placeholder="Enter Your Cuopon">
+                    <button class="normal">Apply</button>
+                </div>
+            </div>
+            <div id="subtotal">
+                <h3>Cart Totals</h3>
+                <table>
+                    <tr>
+                        <td>Cart Subtotal</td>
+                        <td id="cartSubtotal">$0</td>
+                    </tr>
+                    <tr>
+                        <td>Shipping</td>
+                        <td>Free</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td><strong id="cartTotal">$0</strong></td>
+                    </tr>
+                </table>
+                <button class="normal" onclick="redirectToPayment()">Proceed to checkout</button>
+            </div>
+        </section>
+        <footer class="section-p1">
+            <div class="col">
+                <img class="logo" src="img/logo_new.png" alt="">
+                <h4>Contact</h4>
+                <p><strong>Address:</strong>14/5,Matha kovil Street,Aranthangi.</p>
+                <p><strong>Phone:</strong>1234567890/ 9087654321</p>
+                <p><strong>Hours:</strong>10:00 - 18:00, Mon - Sat</p>
+                <div class="follow">
+                    <h4>Follow us</h4>
+                    <div class="icon">
+                        <i class="fa-brands fa-facebook"></i>
+                        <i class="fa-brands fa-twitter"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                        <i class="fa-brands fa-pinterest"></i>
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <h4>About</h4>
+                <a href="#">About us</a>
+                <a href="#">Delivery Information</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms & Conditions</a>
+                <a href="#">Contact Us</a>
+            </div>
+            <div class="col">
+                <h4>My Account</h4>
+                <a href="#">Sign In</a>
+                <a href="#">View Cart</a>
+                <a href="#">My Wishlist</a>
+                <a href="#">Track My Order</a>
+                <a href="#">Help</a>
+            </div>
+            <div class="col install">
+                <h4>Install App</h4>
+                <p>From App Store or Google Play</p>
+                <div class="row">
+                    <img src="img/pay/app.jpg" alt="">
+                    <img src="img/pay/play.jpg" alt="">
+                </div>
+                <p>Secured Payment Gateways</p>
+                <img src="img/pay/pay.png" alt="">
+            </div>
+            <!--<div class="copyright">
+                <p>o </p>
+            </div>-->
+        </footer>
+        <script>
+        // Load the cart items from localStorage
+        function loadCart() {
+            const cartItemsContainer = document.getElementById("cartItems");
+            const emptyCartMessage = document.getElementById("emptyCartMessage");
+            const cartTableHead = document.getElementById("cartTableHead");
+            const subtotalSection = document.getElementById("subtotal");
+
+            // Get the cart from localStorage
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            if (cart.length === 0) {
+                // If the cart is empty, show the empty message
+                emptyCartMessage.style.display = "block";
+                cartTableHead.style.display = "none";
+                subtotalSection.style.display = "none";
+            } else {
+                emptyCartMessage.style.display = "none";
+                cartTableHead.style.display = "table-header-group";
+                subtotalSection.style.display = "block";
+            }
+
+            let subtotal = 0;
+            cartItemsContainer.innerHTML = "";
+
+            cart.forEach((item, index) => {
+                const subtotalForItem = item.price * item.quantity;
+                subtotal += subtotalForItem;
+
+                const itemRow = document.createElement("tr");
+                itemRow.innerHTML = `
+                    <td><a href="#" onclick="removeItem(${index})"><i class="fa-regular fa-circle-xmark"></i></a></td>
+                    <td><img src="${item.image}" alt=""></td>
+                    <td>${item.name}</td>
+                    <td>Rs.${item.price.toFixed(2)}</td>
+                    <td><input type="number" value="${item.quantity}" min="1" max="20" onchange="updateQuantity(${index}, this.value)"></td>
+                    <td>Rs.${subtotalForItem.toFixed(2)}</td>
+                `;
+                cartItemsContainer.appendChild(itemRow);
+            });
+
+            // Update subtotal and total
+            document.getElementById("cartSubtotal").textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById("cartTotal").textContent = `$${subtotal.toFixed(2)}`;
+        }
+
+        function updateQuantity(index, newQuantity) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            newQuantity = parseInt(newQuantity);
+
+            if (newQuantity < 1) {
+                newQuantity = 1;
+            } else if (newQuantity > 20) {
+                newQuantity = 20;
+            }
+
+            cart[index].quantity = newQuantity;
+            localStorage.setItem("cart", JSON.stringify(cart));
+            loadCart();
+        }
+
+        // Remove item from cart
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            loadCart();
+        }
+        
+        function redirectToPayment() {
+            // Ensure the cart is not empty before redirecting
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            if (cart.length > 0) {
+                // Redirect to the payment page
+                window.location.href = "payment.html"; // Change "payment.html" to the correct file path if necessary
+            } else {
+                alert("Your cart is empty. Please add items to your cart before proceeding to checkout.");
+            }
+        }
+        // // Update item quantity
+        // function updateQuantity(index, newQuantity) {
+        //     let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        //     cart[index].quantity = parseInt(newQuantity);
+        //     localStorage.setItem("cart", JSON.stringify(cart));
+        //     loadCart();
+        // }
+
+        // Initial cart load
+        loadCart();
+    </script>
+        
+    </body>
+
+</html>

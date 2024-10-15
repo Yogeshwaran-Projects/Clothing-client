@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .section h2 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .section p {
+            font-size: 16px;
+            color: #666;
+        }
+        .product-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .product-info img {
+            max-width: 150px;
+            border-radius: 8px;
+        }
+        .product-info .details {
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+        .product-info .details h2 {
+            font-size: 20px;
+            margin: 0;
+            color: #333;
+        }
+        .product-info .details p {
+            color: #555;
+        }
+        .quantity-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .quantity-container label {
+            font-size: 16px;
+            margin-right: 10px;
+            color: #333;
+        }
+        .quantity-container input {
+            width: 60px;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .total-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+        }
+        .address-form label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .address-form input,
+        .address-form textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .address-form textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .address-form .form-group {
+            margin-bottom: 20px;
+        }
+        #checkout-button {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #ff9900;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        #checkout-button:hover {
+            background-color: #e68a00;
+        }
+        .summary {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .summary h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .summary p {
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Checkout</h1>
+        
+        <div class="section product-info">
+                     <img src="img/products/f1.jpg" alt="Men's Fashion T-Shirt - Design 1">
+            <div class="details">
+                <h2>Men's Fashion T-Shirt - Design 1</h2>
+                <p>High-quality men's fashion T-shirt with a stylish design. Perfect for casual wear.</p>
+                <div class="quantity-container">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" min="1" value="1">
+                </div>
+                <div class="total-price">Total: Rs.439.00</div>
+            </div>
+        </div>
+
+        <div class="section address-form">
+            <h2>Shipping Address</h2>
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" required>
+            </div>
+            <div class="form-group">
+                <label for="state">State:</label>
+                <input type="text" id="state" name="state" required>
+            </div>
+            <div class="form-group">
+                <label for="postal-code">Postal Code:</label>
+                <input type="text" id="postal-code" name="postal-code" required>
+            </div>
+        </div>
+        
+        <div class="summary">
+            <h3>Order Summary</h3>
+            <p><strong>Item:</strong> Men's Fashion T-Shirt - Design 1</p>
+            <p><strong>Quantity:</strong> <span id="summary-quantity">1</span></p>
+            <p><strong>Total:</strong> <span id="summary-total">Rs.439.00</span></p>
+        </div>
+        
+        <button id="checkout-button">Proceed to Payment</button>
+    </div>
+
+    <script>
+        const stripe = Stripe('pk_test_51PKIroSHRE1k8EdpEqjVgyFzXeeuAqPLZGG1iY4ajHlGfBtmUEgPwQB84Blc3gXkZAVtKulRdxF39ERuyDq9gYmv00j49WQoH8');
+        const checkoutButton = document.getElementById('checkout-button');
+        const quantityInput = document.getElementById('quantity');
+        const totalPriceDiv = document.querySelector('.total-price');
+        const nameInput = document.getElementById('name');
+        const addressInput = document.getElementById('address');
+        const cityInput = document.getElementById('city');
+        const stateInput = document.getElementById('state');
+        const postalCodeInput = document.getElementById('postal-code');
+        const summaryQuantity = document.getElementById('summary-quantity');
+        const summaryTotal = document.getElementById('summary-total');
+
+        const unitPrice = 439; // Price per unit in Rs.
+
+        function updateTotalPrice() {
+            const quantity = parseInt(quantityInput.value, 10);
+            const totalPrice = unitPrice * quantity;
+            totalPriceDiv.textContent = `Total: Rs.${totalPrice.toFixed(2)}`;
+            summaryQuantity.textContent = quantity;
+            summaryTotal.textContent = `Rs.${totalPrice.toFixed(2)}`;
+        }
+
+        quantityInput.addEventListener('input', updateTotalPrice);
+
+        checkoutButton.addEventListener('click', () => {
+            const quantity = quantityInput.value;
+            const name = nameInput.value;
+            const address = addressInput.value;
+            const city = cityInput.value;
+            const state = stateInput.value;
+            const postalCode = postalCodeInput.value;
+
+            if (!name || !address || !city || !state || !postalCode) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            fetch('http://localhost:3000/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    quantity: quantity,
+                    name: name,
+                    address: address,
+                    city: city,
+                    state: state,
+                    postalCode: postalCode
+                }),
+            })
+            .then(response => response.json())
+            .then(session => {
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .then(result => {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        updateTotalPrice(); // Initialize total price on page load
+    </script>
+</body>
+</html>

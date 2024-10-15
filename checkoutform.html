@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Checkout Form</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        /* Add some basic styling */
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+        .payment-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <form id="payment-form">
+        <div id="card-element">
+            <!-- A Stripe Element will be inserted here. -->
+        </div>
+
+        <!-- Used to display form errors -->
+        <div id="card-errors" class="error-message"></div>
+
+        <button id="submit-button" class="payment-button" type="submit" disabled>Pay</button>
+    </form>
+
+    <script>
+        // Load Stripe and initialize with your publishable key
+        var stripe = Stripe('your-publishable-key'); // Replace with your actual publishable key
+        var elements = stripe.elements();
+
+        // Create an instance of the Card Element
+        var card = elements.create('card');
+
+        // Add an instance of the Card Element into the card-element div
+        card.mount('#card-element');
+
+        // Handle real-time validation errors from the card Element.
+        card.on('change', function(event) {
+            var errorElement = document.getElementById('card-errors');
+            if (event.error) {
+                errorElement.textContent = event.error.message;
+            } else {
+                errorElement.textContent = '';
+            }
+
+            // Enable the submit button if no errors
+            document.getElementById('submit-button').disabled = event.empty || event.error;
+        });
+
+        // Handle form submission
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            stripe.confirmCardPayment('your-client-secret', { // Replace with your actual client secret
+                payment_method: {
+                    card: card
+                }
+            }).then(function(result) {
+                if (result.error) {
+                    // Show error to your customer
+                    document.getElementById('card-errors').textContent = result.error.message;
+                } else {
+                    // The payment has been processed!
+                    if (result.paymentIntent.status === 'succeeded') {
+                        console.log('Payment successful!', result.paymentIntent);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
